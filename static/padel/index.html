@@ -94,12 +94,13 @@
                     </div>
 
                     <div class="flex gap-4 w-[140px] justify-center text-xl font-mono">
-                        <span class="bg-gray-900 w-8 py-1 rounded text-center">0</span>
-                        <span class="bg-gray-900 w-8 py-1 rounded text-center">0</span>
-                        <span class="bg-gray-700 w-8 py-1 rounded text-center text-gray-400">0</span>
+                        <span id="set1-a" class="bg-gray-700 w-8 py-1 rounded text-center text-gray-400">0</span>
+                        <span id="set2-a" class="bg-gray-900 w-8 py-1 rounded text-center">0</span>
+                        <span id="set3-a" class="bg-gray-900 w-8 py-1 rounded text-center">0</span>
                     </div>
 
-                    <div class="text-6xl font-black text-white text-right">0</div>
+                    <div id="puntos-a" onclick="enviarAccion('A')" class="text-6xl font-black text-white text-right">0
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-[1fr_auto_100px] gap-4 items-center px-4">
@@ -110,31 +111,38 @@
                     </div>
 
                     <div class="flex gap-4 w-[140px] justify-center text-xl font-mono">
-                        <span class="bg-gray-900 w-8 py-1 rounded text-center">0</span>
-                        <span class="bg-gray-900 w-8 py-1 rounded text-center">0</span>
-                        <span class="bg-gray-700 w-8 py-1 rounded text-center text-gray-400">0</span>
+                        <span id="set1-b" class="bg-gray-700 w-8 py-1 rounded text-center text-gray-400">0</span>
+                        <span id="set2-b" class="bg-gray-900 w-8 py-1 rounded text-center">0</span>
+                        <span id="set3-b" class="bg-gray-900 w-8 py-1 rounded text-center">0</span>
                     </div>
 
-                    <div class="text-6xl font-black text-white text-right">0</div>
+                    <div id="puntos-b" onclick="enviarAccion('B')" class="text-6xl font-black text-white text-right">0
+                    </div>
                 </div>
 
                 <div class="mt-10">
                     <div class="flex justify-between gap-4 mb-4">
-                        <button
+                        <button onclick="enviarAccion('A')"
                             class="flex-1 bg-purple-600 hover:bg-purple-700 py-4 rounded-xl font-bold transition shadow-lg">+
                             Punto A</button>
-                        <button
+                        <button onclick="enviarAccion('B')"
                             class="flex-1 bg-purple-600 hover:bg-purple-700 py-4 rounded-xl font-bold transition shadow-lg">+
                             Punto B</button>
                     </div>
                     <div class="flex justify-between gap-8 px-8">
-                        <button
+                        <button onclick="enviarAccion('restar_A')"
                             class="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-300 py-2 rounded-lg text-sm font-medium opacity-60">-
                             Quitar A</button>
-                        <button
+                        <button onclick="enviarAccion('restar_B')"
                             class="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-300 py-2 rounded-lg text-sm font-medium opacity-60">-
                             Quitar B</button>
                     </div>
+                </div>
+                <div class="mt-8 flex justify-center">
+                    <button onclick="reiniciarPartido()"
+                        class="bg-red-900/30 hover:bg-red-900/50 text-red-400 border border-red-900/50 px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all">
+                        Reiniciar Partido
+                    </button>
                 </div>
             </div>
 
@@ -172,18 +180,123 @@
     </div>
 
     <script>
+        // 1. Lógica del Selector de Deportes (La que ya tienes)
         const sportSelect = document.getElementById('sport-select');
         const views = document.querySelectorAll('.sport-view');
 
         sportSelect.addEventListener('change', (e) => {
             const selectedSport = e.target.value;
-
-            // Ocultar todas las vistas
             views.forEach(view => view.classList.add('hidden'));
-
-            // Mostrar solo la seleccionada
             document.getElementById(`view-${selectedSport}`).classList.remove('hidden');
         });
+
+        // 2. Estado Global del Partido de Pádel
+        let estadoPartido = {
+            puntos_a: "0",
+            puntos_b: "0",
+            juegos_a: [0, 0, 0],
+            juegos_b: [0, 0, 0],
+            set_actual: 0,
+            saque: "A",
+            partido_finalizado: false
+        };
+
+        // 3. Función para enviar acciones a FastAPI
+        async function enviarAccion(quienSuma) {
+            if (estadoPartido.partido_finalizado) {
+                alert("El partido ha terminado. Reinicia para empezar uno nuevo.");
+                return;
+            }
+
+            // Preparamos el paquete de datos para Python
+            const payload = { ...estadoPartido, quien_suma: quienSuma };
+
+            try {
+                const response = await fetch('/api/padel/actualizar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    estadoPartido = await response.json();
+                    actualizarInterfaz();
+                }
+            } catch (error) {
+                console.error("Error conectando con el servidor:", error);
+            }
+        }
+
+        // 4. Función para pintar los datos en el HTML
+        function actualizarInterfaz() {
+            // Actualizar puntos grandes
+            document.getElementById('puntos-a').innerText = estadoPartido.puntos_a;
+            document.getElementById('puntos-b').innerText = estadoPartido.puntos_b;
+
+            // Actualizar los cuadraditos de los sets
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`set${i + 1}-a`).innerText = estadoPartido.juegos_a[i];
+                document.getElementById(`set${i + 1}-b`).innerText = estadoPartido.juegos_b[i];
+            }
+
+            // Actualizar indicador de saque (#DFF867)
+            const ballA = document.getElementById('ball-eq1');
+            const ballB = document.getElementById('ball-eq2');
+
+            if (estadoPartido.saque === "A") {
+                ballA.style.backgroundColor = "#DFF867";
+                ballA.classList.add('shadow-[0_0_12px_#DFF867]');
+                ballB.style.backgroundColor = "transparent";
+                ballB.classList.remove('shadow-[0_0_12px_#DFF867]');
+            } else {
+                ballB.style.backgroundColor = "#DFF867";
+                ballB.classList.add('shadow-[0_0_12px_#DFF867]');
+                ballA.style.backgroundColor = "transparent";
+                ballA.classList.remove('shadow-[0_0_12px_#DFF867]');
+            }
+
+            // Resaltar el set actual
+            for (let i = 0; i < 3; i++) {
+                const boxA = document.getElementById(`set${i + 1}-a`);
+                const boxB = document.getElementById(`set${i + 1}-b`);
+
+                if (i === estadoPartido.set_actual) {
+                    // Set actual: más brillante
+                    boxA.classList.replace('bg-gray-900', 'bg-gray-700');
+                    boxB.classList.replace('bg-gray-900', 'bg-gray-700');
+                    boxA.classList.add('text-white');
+                    boxB.classList.add('text-white');
+                } else {
+                    // Sets pasados o futuros: más oscuros
+                    boxA.classList.replace('bg-gray-700', 'bg-gray-900');
+                    boxB.classList.replace('bg-gray-700', 'bg-gray-900');
+                    boxA.classList.remove('text-white');
+                    boxB.classList.remove('text-white');
+                }
+            }
+        }
+
+        async function reiniciarPartido() {
+            // Preguntamos para evitar reinicios por error
+            if (!confirm("¿Estás seguro de que quieres reiniciar el marcador?")) return;
+
+            try {
+                const response = await fetch('/api/padel/reiniciar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    // El servidor nos devuelve el estado inicial
+                    estadoPartido = await response.json();
+                    // Refrescamos la pantalla
+                    actualizarInterfaz();
+                }
+            } catch (error) {
+                console.error("Error al reiniciar:", error);
+            }
+        }
+
     </script>
 </body>
 
