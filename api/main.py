@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 
+from api.routes import padel
+
+
 app = FastAPI(title="PyTools Hub API")
 
 # Esto servirá tus archivos HTML automáticamente
@@ -17,3 +20,7 @@ async def root():
 @app.get("/api/health")
 def health():
     return {"status": "online", "message": "Ready to build tools!"}
+
+
+# Incluimos las rutas del submódulo de pádel
+app.include_router(padel.router, prefix="/api/padel", tags=["Padel"])
