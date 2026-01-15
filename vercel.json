@@ -1,12 +1,26 @@
 {
-    "rewrites": [
+    "builds": [
         {
-            "source": "/api/(.*)",
-            "destination": "/api/main.py"
+            "src": "api/main.py",
+            "use": "@vercel/python"
         },
         {
-            "source": "/(.*)",
-            "destination": "/static/$1"
+            "src": "static/**",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "api/main.py"
+        },
+        {
+            "src": "/static/(.*)",
+            "dest": "/static/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/static/padel/index.html"
         }
     ]
 }
