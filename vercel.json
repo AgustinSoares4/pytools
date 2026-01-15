@@ -20,7 +20,7 @@
         },
         {
             "src": "/(.*)",
-            "dest": "/static/padel/index.html"
+            "dest": "/static/index.html"
         }
     ]
 }
