@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversor de Divisas - PyTools Hub</title>
+    <title>Conversor de Moneda - PyTools Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -24,6 +24,7 @@
             text-align: center;
             padding: 2rem;
             max-width: 90%;
+            width: 500px;
         }
 
         h1 {
@@ -44,28 +45,469 @@
             font-weight: 600;
             text-decoration: none;
             transition: all 0.3s ease;
+            display: inline-block;
         }
 
         .back-btn:hover {
             background-color: #2d3748;
             transform: translateY(-2px);
         }
+
+        /* Estilo para los select e input para que luzcan modernos */
+        select,
+        input {
+            background-color: #2d3748 !important;
+            border: 1px solid #4a5568 !important;
+            color: white !important;
+        }
+
+        select:focus,
+        input:focus {
+            border-color: #a78bfa !important;
+            outline: none;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>💱 Conversor de Divisas</h1>
-        <p class="text-lg text-gray-400 mb-8">Convierte entre diferentes monedas al instante.</p>
+        <h1>💱 Currency Converter</h1>
+        <p class="text-lg text-gray-400 mb-8">Tipos de cambio en tiempo real.</p>
 
-        <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-xl mx-auto">
-            <h2 class="text-2xl font-bold text-white mb-4">En construcción...</h2>
-            <p class="text-gray-300">Pronto podrás ver los tipos de cambio en tiempo real.</p>
-            <p class="text-sm text-gray-500 mt-4">¡Paciencia, la perfección toma tiempo! 😉</p>
+        <div class="bg-gray-800 p-8 rounded-3xl shadow-2xl border border-gray-700 text-left">
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Cantidad a convertir:</label>
+                    <input type="number" id="cantidad" value="1.00" step="0.01"
+                        class="w-full p-4 rounded-xl text-xl font-semibold">
+                </div>
+
+                <div class="grid grid-cols-[1fr_auto_1fr] gap-2 items-end">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">De:</label>
+                        <select id="moneda-origen" class="w-full p-3 rounded-xl appearance-none cursor-pointer">
+                            <optgroup label="Principales">
+                                <option value="USD">USD - Dólar Estadounidense</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - Libra Esterlina</option>
+                                <option value="ARS" selected>ARS - Peso Argentino</option>
+                                <option value="BRL">BRL - Real Brasileño</option>
+                            </optgroup>
+                            <optgroup label="Otras Monedas">
+                                <option value="AED">AED - Emiratos Árabes Unidos</option>
+                                <option value="AFN">AFN - Afganistán</option>
+                                <option value="ALL">ALL - Albania</option>
+                                <option value="AMD">AMD - Armenia</option>
+                                <option value="ANG">ANG - Antillas Neerlandesas</option>
+                                <option value="AOA">AOA - Angola</option>
+                                <option value="AUD">AUD - Australia</option>
+                                <option value="AWG">AWG - Aruba</option>
+                                <option value="AZN">AZN - Azerbaiyán</option>
+                                <option value="BAM">BAM - Bosnia y Herzegovina</option>
+                                <option value="BBD">BBD - Barbados</option>
+                                <option value="BDT">BDT - Bangladesh</option>
+                                <option value="BGN">BGN - Bulgaria</option>
+                                <option value="BHD">BHD - Baréin</option>
+                                <option value="BIF">BIF - Burundi</option>
+                                <option value="BMD">BMD - Bermudas</option>
+                                <option value="BND">BND - Brunéi</option>
+                                <option value="BOB">BOB - Bolivia</option>
+                                <option value="BSD">BSD - Bahamas</option>
+                                <option value="BTN">BTN - Bután</option>
+                                <option value="BWP">BWP - Botsuana</option>
+                                <option value="BYN">BYN - Bielorrusia</option>
+                                <option value="BZD">BZD - Belice</option>
+                                <option value="CAD">CAD - Canadá</option>
+                                <option value="CDF">CDF - Congo</option>
+                                <option value="CHF">CHF - Suiza</option>
+                                <option value="CLP">CLP - Chile</option>
+                                <option value="CNY">CNY - China</option>
+                                <option value="COP">COP - Colombia</option>
+                                <option value="CRC">CRC - Costa Rica</option>
+                                <option value="CUP">CUP - Cuba</option>
+                                <option value="CVE">CVE - Cabo Verde</option>
+                                <option value="CZK">CZK - República Checa</option>
+                                <option value="DJF">DJF - Yibuti</option>
+                                <option value="DKK">DKK - Dinamarca</option>
+                                <option value="DOP">DOP - República Dominicana</option>
+                                <option value="DZD">DZD - Argelia</option>
+                                <option value="EGP">EGP - Egipto</option>
+                                <option value="ERN">ERN - Eritrea</option>
+                                <option value="ETB">ETB - Etiopía</option>
+                                <option value="FJD">FJD - Fiyi</option>
+                                <option value="FKP">FKP - Islas Malvinas</option>
+                                <option value="FOK">FOK - Islas Feroe</option>
+                                <option value="GEL">GEL - Georgia</option>
+                                <option value="GGP">GGP - Guernsey</option>
+                                <option value="GHS">GHS - Ghana</option>
+                                <option value="GIP">GIP - Gibraltar</option>
+                                <option value="GMD">GMD - Gambia</option>
+                                <option value="GNF">GNF - Guinea</option>
+                                <option value="GTQ">GTQ - Guatemala</option>
+                                <option value="GYD">GYD - Guyana</option>
+                                <option value="HKD">HKD - Hong Kong</option>
+                                <option value="HNL">HNL - Honduras</option>
+                                <option value="HRK">HRK - Croacia</option>
+                                <option value="HTG">HTG - Haití</option>
+                                <option value="HUF">HUF - Hungría</option>
+                                <option value="IDR">IDR - Indonesia</option>
+                                <option value="ILS">ILS - Israel</option>
+                                <option value="IMP">IMP - Isla de Man</option>
+                                <option value="INR">INR - India</option>
+                                <option value="IQD">IQD - Irak</option>
+                                <option value="IRR">IRR - Irán</option>
+                                <option value="ISK">ISK - Islandia</option>
+                                <option value="JEP">JEP - Jersey</option>
+                                <option value="JMD">JMD - Jamaica</option>
+                                <option value="JOD">JOD - Jordania</option>
+                                <option value="JPY">JPY - Japón</option>
+                                <option value="KES">KES - Kenia</option>
+                                <option value="KGS">KGS - Kirguistán</option>
+                                <option value="KHR">KHR - Camboya</option>
+                                <option value="KID">KID - Kiribati</option>
+                                <option value="KMF">KMF - Comoras</option>
+                                <option value="KRW">KRW - Corea del Sur</option>
+                                <option value="KWD">KWD - Kuwait</option>
+                                <option value="KYD">KYD - Islas Caimán</option>
+                                <option value="KZT">KZT - Kazajistán</option>
+                                <option value="LAK">LAK - Laos</option>
+                                <option value="LBP">LBP - Líbano</option>
+                                <option value="LKR">LKR - Sri Lanka</option>
+                                <option value="LRD">LRD - Liberia</option>
+                                <option value="LSL">LSL - Lesoto</option>
+                                <option value="LYD">LYD - Libia</option>
+                                <option value="MAD">MAD - Marruecos</option>
+                                <option value="MDL">MDL - Moldavia</option>
+                                <option value="MGA">MGA - Madagascar</option>
+                                <option value="MKD">MKD - Macedonia del Norte</option>
+                                <option value="MMK">MMK - Myanmar</option>
+                                <option value="MNT">MNT - Mongolia</option>
+                                <option value="MOP">MOP - Macao</option>
+                                <option value="MRU">MRU - Mauritania</option>
+                                <option value="MUR">MUR - Mauricio</option>
+                                <option value="MVR">MVR - Maldivas</option>
+                                <option value="MWK">MWK - Malaui</option>
+                                <option value="MXN">MXN - México</option>
+                                <option value="MYR">MYR - Malasia</option>
+                                <option value="MZN">MZN - Mozambique</option>
+                                <option value="NAD">NAD - Namibia</option>
+                                <option value="NGN">NGN - Nigeria</option>
+                                <option value="NIO">NIO - Nicaragua</option>
+                                <option value="NOK">NOK - Noruega</option>
+                                <option value="NPR">NPR - Nepal</option>
+                                <option value="NZD">NZD - Nueva Zelanda</option>
+                                <option value="OMR">OMR - Omán</option>
+                                <option value="PAB">PAB - Panamá</option>
+                                <option value="PEN">PEN - Perú</option>
+                                <option value="PGK">PGK - Papúa Nueva Guinea</option>
+                                <option value="PHP">PHP - Filipinas</option>
+                                <option value="PKR">PKR - Pakistán</option>
+                                <option value="PLN">PLN - Polonia</option>
+                                <option value="PYG">PYG - Paraguay</option>
+                                <option value="QAR">QAR - Catar</option>
+                                <option value="RON">RON - Rumania</option>
+                                <option value="RSD">RSD - Serbia</option>
+                                <option value="RUB">RUB - Rusia</option>
+                                <option value="RWF">RWF - Ruanda</option>
+                                <option value="SAR">SAR - Arabia Saudita</option>
+                                <option value="SBD">SBD - Islas Salomón</option>
+                                <option value="SCR">SCR - Seychelles</option>
+                                <option value="SDG">SDG - Sudán</option>
+                                <option value="SEK">SEK - Suecia</option>
+                                <option value="SGD">SGD - Singapur</option>
+                                <option value="SHP">SHP - Santa Elena</option>
+                                <option value="SLE">SLE - Sierra Leona</option>
+                                <option value="SLL">SLL - Sierra Leona (Ant.)</option>
+                                <option value="SOS">SOS - Somalia</option>
+                                <option value="SRD">SRD - Surinam</option>
+                                <option value="SSP">SSP - Sudán del Sur</option>
+                                <option value="STN">STN - Santo Tomé y Príncipe</option>
+                                <option value="SYP">SYP - Siria</option>
+                                <option value="SZL">SZL - Suazilandia</option>
+                                <option value="THB">THB - Tailandia</option>
+                                <option value="TJS">TJS - Tayikistán</option>
+                                <option value="TMT">TMT - Turkmenistán</option>
+                                <option value="TND">TND - Túnez</option>
+                                <option value="TOP">TOP - Tonga</option>
+                                <option value="TRY">TRY - Turquía</option>
+                                <option value="TTD">TTD - Trinidad y Tobago</option>
+                                <option value="TVD">TVD - Tuvalu</option>
+                                <option value="TWD">TWD - Taiwán</option>
+                                <option value="TZS">TZS - Tanzania</option>
+                                <option value="UAH">UAH - Ucrania</option>
+                                <option value="UGX">UGX - Uganda</option>
+                                <option value="UYU">UYU - Uruguay</option>
+                                <option value="UZS">UZS - Uzbekistán</option>
+                                <option value="VES">VES - Venezuela</option>
+                                <option value="VND">VND - Vietnam</option>
+                                <option value="VUV">VUV - Vanuatu</option>
+                                <option value="WST">WST - Samoa</option>
+                                <option value="XAF">XAF - África Central (BEAC)</option>
+                                <option value="XCD">XCD - Caribe Oriental</option>
+                                <option value="XDR">XDR - FMI (DERECHOS)</option>
+                                <option value="XOF">XOF - África Occidental (BCEAO)</option>
+                                <option value="XPF">XPF - Polinesia Francesa</option>
+                                <option value="YER">YER - Yemen</option>
+                                <option value="ZAR">ZAR - Sudáfrica</option>
+                                <option value="ZMW">ZMW - Zambia</option>
+                                <option value="ZWL">ZWL - Zimbabue</option>
+                            </optgroup>
+                        </select>
+                        </select>
+                    </div>
+
+                    <div class="pb-1">
+                        <button onclick="intercambiarMonedas()"
+                            class="bg-gray-700 hover:bg-gray-600 p-3 rounded-full transition-all active:rotate-180 duration-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-400" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">A:</label>
+                        <select id="moneda-destino" class="w-full p-3 rounded-xl appearance-none cursor-pointer">
+                            <optgroup label="Principales">
+                                <option value="USD" selected>USD - Dólar Estadounidense</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - Libra Esterlina</option>
+                                <option value="ARS">ARS - Peso Argentino</option>
+                                <option value="BRL">BRL - Real Brasileño</option>
+                            </optgroup>
+                            <optgroup label="Otras Monedas">
+                                <option value="AED">AED - Emiratos Árabes Unidos</option>
+                                <option value="AFN">AFN - Afganistán</option>
+                                <option value="ALL">ALL - Albania</option>
+                                <option value="AMD">AMD - Armenia</option>
+                                <option value="ANG">ANG - Antillas Neerlandesas</option>
+                                <option value="AOA">AOA - Angola</option>
+                                <option value="AUD">AUD - Australia</option>
+                                <option value="AWG">AWG - Aruba</option>
+                                <option value="AZN">AZN - Azerbaiyán</option>
+                                <option value="BAM">BAM - Bosnia y Herzegovina</option>
+                                <option value="BBD">BBD - Barbados</option>
+                                <option value="BDT">BDT - Bangladesh</option>
+                                <option value="BGN">BGN - Bulgaria</option>
+                                <option value="BHD">BHD - Baréin</option>
+                                <option value="BIF">BIF - Burundi</option>
+                                <option value="BMD">BMD - Bermudas</option>
+                                <option value="BND">BND - Brunéi</option>
+                                <option value="BOB">BOB - Bolivia</option>
+                                <option value="BSD">BSD - Bahamas</option>
+                                <option value="BTN">BTN - Bután</option>
+                                <option value="BWP">BWP - Botsuana</option>
+                                <option value="BYN">BYN - Bielorrusia</option>
+                                <option value="BZD">BZD - Belice</option>
+                                <option value="CAD">CAD - Canadá</option>
+                                <option value="CDF">CDF - Congo</option>
+                                <option value="CHF">CHF - Suiza</option>
+                                <option value="CLP">CLP - Chile</option>
+                                <option value="CNY">CNY - China</option>
+                                <option value="COP">COP - Colombia</option>
+                                <option value="CRC">CRC - Costa Rica</option>
+                                <option value="CUP">CUP - Cuba</option>
+                                <option value="CVE">CVE - Cabo Verde</option>
+                                <option value="CZK">CZK - República Checa</option>
+                                <option value="DJF">DJF - Yibuti</option>
+                                <option value="DKK">DKK - Dinamarca</option>
+                                <option value="DOP">DOP - República Dominicana</option>
+                                <option value="DZD">DZD - Argelia</option>
+                                <option value="EGP">EGP - Egipto</option>
+                                <option value="ERN">ERN - Eritrea</option>
+                                <option value="ETB">ETB - Etiopía</option>
+                                <option value="FJD">FJD - Fiyi</option>
+                                <option value="FKP">FKP - Islas Malvinas</option>
+                                <option value="FOK">FOK - Islas Feroe</option>
+                                <option value="GEL">GEL - Georgia</option>
+                                <option value="GGP">GGP - Guernsey</option>
+                                <option value="GHS">GHS - Ghana</option>
+                                <option value="GIP">GIP - Gibraltar</option>
+                                <option value="GMD">GMD - Gambia</option>
+                                <option value="GNF">GNF - Guinea</option>
+                                <option value="GTQ">GTQ - Guatemala</option>
+                                <option value="GYD">GYD - Guyana</option>
+                                <option value="HKD">HKD - Hong Kong</option>
+                                <option value="HNL">HNL - Honduras</option>
+                                <option value="HRK">HRK - Croacia</option>
+                                <option value="HTG">HTG - Haití</option>
+                                <option value="HUF">HUF - Hungría</option>
+                                <option value="IDR">IDR - Indonesia</option>
+                                <option value="ILS">ILS - Israel</option>
+                                <option value="IMP">IMP - Isla de Man</option>
+                                <option value="INR">INR - India</option>
+                                <option value="IQD">IQD - Irak</option>
+                                <option value="IRR">IRR - Irán</option>
+                                <option value="ISK">ISK - Islandia</option>
+                                <option value="JEP">JEP - Jersey</option>
+                                <option value="JMD">JMD - Jamaica</option>
+                                <option value="JOD">JOD - Jordania</option>
+                                <option value="JPY">JPY - Japón</option>
+                                <option value="KES">KES - Kenia</option>
+                                <option value="KGS">KGS - Kirguistán</option>
+                                <option value="KHR">KHR - Camboya</option>
+                                <option value="KID">KID - Kiribati</option>
+                                <option value="KMF">KMF - Comoras</option>
+                                <option value="KRW">KRW - Corea del Sur</option>
+                                <option value="KWD">KWD - Kuwait</option>
+                                <option value="KYD">KYD - Islas Caimán</option>
+                                <option value="KZT">KZT - Kazajistán</option>
+                                <option value="LAK">LAK - Laos</option>
+                                <option value="LBP">LBP - Líbano</option>
+                                <option value="LKR">LKR - Sri Lanka</option>
+                                <option value="LRD">LRD - Liberia</option>
+                                <option value="LSL">LSL - Lesoto</option>
+                                <option value="LYD">LYD - Libia</option>
+                                <option value="MAD">MAD - Marruecos</option>
+                                <option value="MDL">MDL - Moldavia</option>
+                                <option value="MGA">MGA - Madagascar</option>
+                                <option value="MKD">MKD - Macedonia del Norte</option>
+                                <option value="MMK">MMK - Myanmar</option>
+                                <option value="MNT">MNT - Mongolia</option>
+                                <option value="MOP">MOP - Macao</option>
+                                <option value="MRU">MRU - Mauritania</option>
+                                <option value="MUR">MUR - Mauricio</option>
+                                <option value="MVR">MVR - Maldivas</option>
+                                <option value="MWK">MWK - Malaui</option>
+                                <option value="MXN">MXN - México</option>
+                                <option value="MYR">MYR - Malasia</option>
+                                <option value="MZN">MZN - Mozambique</option>
+                                <option value="NAD">NAD - Namibia</option>
+                                <option value="NGN">NGN - Nigeria</option>
+                                <option value="NIO">NIO - Nicaragua</option>
+                                <option value="NOK">NOK - Noruega</option>
+                                <option value="NPR">NPR - Nepal</option>
+                                <option value="NZD">NZD - Nueva Zelanda</option>
+                                <option value="OMR">OMR - Omán</option>
+                                <option value="PAB">PAB - Panamá</option>
+                                <option value="PEN">PEN - Perú</option>
+                                <option value="PGK">PGK - Papúa Nueva Guinea</option>
+                                <option value="PHP">PHP - Filipinas</option>
+                                <option value="PKR">PKR - Pakistán</option>
+                                <option value="PLN">PLN - Polonia</option>
+                                <option value="PYG">PYG - Paraguay</option>
+                                <option value="QAR">QAR - Catar</option>
+                                <option value="RON">RON - Rumania</option>
+                                <option value="RSD">RSD - Serbia</option>
+                                <option value="RUB">RUB - Rusia</option>
+                                <option value="RWF">RWF - Ruanda</option>
+                                <option value="SAR">SAR - Arabia Saudita</option>
+                                <option value="SBD">SBD - Islas Salomón</option>
+                                <option value="SCR">SCR - Seychelles</option>
+                                <option value="SDG">SDG - Sudán</option>
+                                <option value="SEK">SEK - Suecia</option>
+                                <option value="SGD">SGD - Singapur</option>
+                                <option value="SHP">SHP - Santa Elena</option>
+                                <option value="SLE">SLE - Sierra Leona</option>
+                                <option value="SLL">SLL - Sierra Leona (Ant.)</option>
+                                <option value="SOS">SOS - Somalia</option>
+                                <option value="SRD">SRD - Surinam</option>
+                                <option value="SSP">SSP - Sudán del Sur</option>
+                                <option value="STN">STN - Santo Tomé y Príncipe</option>
+                                <option value="SYP">SYP - Siria</option>
+                                <option value="SZL">SZL - Suazilandia</option>
+                                <option value="THB">THB - Tailandia</option>
+                                <option value="TJS">TJS - Tayikistán</option>
+                                <option value="TMT">TMT - Turkmenistán</option>
+                                <option value="TND">TND - Túnez</option>
+                                <option value="TOP">TOP - Tonga</option>
+                                <option value="TRY">TRY - Turquía</option>
+                                <option value="TTD">TTD - Trinidad y Tobago</option>
+                                <option value="TVD">TVD - Tuvalu</option>
+                                <option value="TWD">TWD - Taiwán</option>
+                                <option value="TZS">TZS - Tanzania</option>
+                                <option value="UAH">UAH - Ucrania</option>
+                                <option value="UGX">UGX - Uganda</option>
+                                <option value="UYU">UYU - Uruguay</option>
+                                <option value="UZS">UZS - Uzbekistán</option>
+                                <option value="VES">VES - Venezuela</option>
+                                <option value="VND">VND - Vietnam</option>
+                                <option value="VUV">VUV - Vanuatu</option>
+                                <option value="WST">WST - Samoa</option>
+                                <option value="XAF">XAF - África Central (BEAC)</option>
+                                <option value="XCD">XCD - Caribe Oriental</option>
+                                <option value="XDR">XDR - FMI (DERECHOS)</option>
+                                <option value="XOF">XOF - África Occidental (BCEAO)</option>
+                                <option value="XPF">XPF - Polinesia Francesa</option>
+                                <option value="YER">YER - Yemen</option>
+                                <option value="ZAR">ZAR - Sudáfrica</option>
+                                <option value="ZMW">ZMW - Zambia</option>
+                                <option value="ZWL">ZWL - Zimbabue</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="realizarConversion()"
+                    class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl transition duration-300 shadow-lg transform active:scale-95">
+                    Convertir Ahora
+                </button>
+
+                <div id="contenedor-resultado"
+                    class="hidden mt-6 p-6 bg-gray-900/50 rounded-2xl border border-purple-500/30 text-center">
+                    <span id="texto-resultado" class="text-3xl font-bold text-white"></span>
+                    <p id="info-tasa" class="text-xs text-gray-500 mt-2 uppercase tracking-widest"></p>
+                </div>
+            </div>
         </div>
 
-        <a href="/" class="back-btn">Volver al Inicio</a>
+        <a href="/" class="back-btn">← Volver al Menú Principal</a>
     </div>
+
+    <script>
+        async function realizarConversion() {
+            const cantidad = document.getElementById('cantidad').value;
+            const base = document.getElementById('moneda-origen').value;
+            const destino = document.getElementById('moneda-destino').value;
+
+            const contenedor = document.getElementById('contenedor-resultado');
+            const texto = document.getElementById('texto-resultado');
+            const info = document.getElementById('info-tasa');
+
+            if (!cantidad || cantidad <= 0) {
+                alert("Por favor, ingresa una cantidad válida.");
+                return;
+            }
+
+            try {
+                // Llamada a tu endpoint de FastAPI en currency.py
+                const url = `/api/currency/convertir?base=${base}&destino=${destino}&cantidad=${cantidad}`;
+                const respuesta = await fetch(url);
+                const datos = await respuesta.json();
+
+                if (respuesta.ok) {
+                    contenedor.classList.remove('hidden');
+                    texto.innerText = `${datos.resultado.toLocaleString()} ${datos.moneda_destino}`;
+                    info.innerText = `1 ${datos.moneda_base} = ${datos.tasa} ${datos.moneda_destino}`;
+                } else {
+                    alert("Error: " + (datos.detail || "No se pudo realizar la conversión"));
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Hubo un fallo al conectar con el servidor.");
+            }
+        }
+
+        function intercambiarMonedas() {
+            const origen = document.getElementById('moneda-origen');
+            const destino = document.getElementById('moneda-destino');
+
+            // Intercambiamos los valores
+            const temp = origen.value;
+            origen.value = destino.value;
+            destino.value = temp;
+
+            // Opcional: Ejecutar la conversión automáticamente tras el cambio
+            realizarConversion();
+        }
+
+        // Permitir convertir presionando "Enter"
+        document.getElementById('cantidad').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') realizarConversion();
+        });
+    </script>
 </body>
 
 </html>

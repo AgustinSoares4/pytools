@@ -1,10 +1,8 @@
-from api.routes import padel, divisas # Importa el nuevo módulo
+from api.routes import currency, padel
 import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-
-from api.routes import padel
 
 
 app = FastAPI(title="PyTools Hub API")
@@ -24,6 +22,7 @@ def health():
 
 # Incluimos las rutas del submódulo de pádel
 app.include_router(padel.router, prefix="/api/padel", tags=["Padel"])
+app.include_router(currency.router, prefix="/api/currency", tags=["Currency"])
 
 # Esto servirá tus archivos HTML automáticamente
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="static", html=True), name="static")
