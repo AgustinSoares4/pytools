@@ -175,7 +175,7 @@
         </div>
 
         <div class="mt-10">
-            <a href="/" class="back-btn">← Volver al Menú Principal</a>
+            <a href="/static/index.html" class="back-btn">← Volver al Menú Principal</a>
         </div>
     </div>
 
@@ -229,6 +229,19 @@
 
         // 4. Función para pintar los datos en el HTML
         function actualizarInterfaz() {
+
+            // Actualizar el color de los puntos cuando es tie-break
+            const puntosA = document.getElementById('puntos-a');
+            const puntosB = document.getElementById('puntos-b');
+
+            if (estadoPartido.es_tiebreak) {
+                puntosA.classList.add('text-orange-400'); // Color de "tensión"
+                puntosB.classList.add('text-orange-400');
+            } else {
+                puntosA.classList.remove('text-orange-400');
+                puntosB.classList.remove('text-orange-400');
+            }
+
             // Actualizar puntos grandes
             document.getElementById('puntos-a').innerText = estadoPartido.puntos_a;
             document.getElementById('puntos-b').innerText = estadoPartido.puntos_b;
@@ -273,6 +286,13 @@
                     boxA.classList.remove('text-white');
                     boxB.classList.remove('text-white');
                 }
+            }
+
+            // Si el partido ha terminado, mostrar alerta
+            if (estadoPartido.partido_finalizado) {
+                alert("El partido ha terminado. El ganador es el Equipo " + (estadoPartido.ganador === "A" ? "A" : "B") + ". El partido termino con un marcador de " +
+                    estadoPartido.juegos_a.join("-") + " a " + estadoPartido.juegos_b.join("-") + ".");
+                return;
             }
         }
 

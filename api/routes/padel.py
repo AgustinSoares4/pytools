@@ -5,6 +5,9 @@ router = APIRouter()
 
 # Definimos qué datos necesitamos recibir desde el navegador
 
+# Mirar y buscar errores o cositas que falten.
+# Por ej, cuando hay AD - 40, y se resta el de 40, queda AD - 30, que no es válido. Plantear que hacemos ahi.
+
 
 class MarcadorPadel(BaseModel):
 
@@ -20,6 +23,7 @@ class MarcadorPadel(BaseModel):
 
     saque: str              # "A" o "B"
 
+    es_tiebreak: bool = False 
     partido_finalizado: bool = False
 
 
@@ -39,7 +43,10 @@ def gestionar_puntos(a: str, b: str, accion: str):
     """
     nuevo_a, nuevo_b = a, b
 
+
+    
     if "restar" not in accion:
+        # Suma un punto para el equipo A
         if accion == "A":
             if a == "0":
                 nuevo_a = "15"
@@ -51,12 +58,12 @@ def gestionar_puntos(a: str, b: str, accion: str):
                 if b in ["0", "15", "30"]:
                     nuevo_a = "Juego"
                 elif b == "40":
-                    nuevo_a = "Ventaja"
-                elif b == "Ventaja":
+                    nuevo_a = "AD"
+                elif b == "AD":
                     nuevo_b = "40"
-            elif a == "Ventaja":
+            elif a == "AD":
                 nuevo_a = "Juego"
-
+        # Suma un punto para el equipo B
         elif accion == "B":
             if b == "0":
                 nuevo_b = "15"
@@ -68,12 +75,13 @@ def gestionar_puntos(a: str, b: str, accion: str):
                 if a in ["0", "15", "30"]:
                     nuevo_b = "Juego"
                 elif a == "40":
-                    nuevo_b = "Ventaja"
-                elif a == "Ventaja":
+                    nuevo_b = "AD"
+                elif a == "AD":
                     nuevo_a = "40"
-            elif b == "Ventaja":
+            elif b == "AD":
                 nuevo_b = "Juego"
     else:
+        # Resta un punto para el equipo A
         if accion == "restar_A":
             if a == "15":
                 nuevo_a = "0"
@@ -81,8 +89,9 @@ def gestionar_puntos(a: str, b: str, accion: str):
                 nuevo_a = "15"
             elif a == "40":
                 nuevo_a = "30"
-            elif a == "Ventaja":
+            elif a == "AD":
                 nuevo_a = "40"
+        # Suma un punto para el equipo B
         elif accion == "restar_B":
             if b == "15":
                 nuevo_b = "0"
@@ -90,12 +99,10 @@ def gestionar_puntos(a: str, b: str, accion: str):
                 nuevo_b = "15"
             elif b == "40":
                 nuevo_b = "30"
-            elif b == "Ventaja":
+            elif b == "AD":
                 nuevo_b = "40"
 
     return nuevo_a, nuevo_b
-
-# (juegos_a, juegos_b)
 
 
 def verificar_set(juegos_a: int, juegos_b: int):
@@ -123,6 +130,30 @@ def verificar_set(juegos_a: int, juegos_b: int):
     return None
 
 
+def gestionar_puntos_tiebreak(a: str, b: str, accion: str):
+    p_a, p_b = int(a), int(b)
+
+    # Aplicación de la acción (Sumar o Restar)
+    if "restar" not in accion:
+        if accion == "A":
+            p_a += 1
+        else:
+            p_b += 1
+    else:
+        if "A" in accion and p_a > 0:
+            p_a -= 1
+        if "B" in accion and p_b > 0:
+            p_b -= 1
+
+    # Verificación de condición de victoria (7 puntos y diferencia de 2)
+    # Si se cumple, devolvemos los puntos y 'False' para cerrar el modo Tie-break
+    if (p_a >= 7 or p_b >= 7) and abs(p_a - p_b) >= 2:
+        return str(p_a), str(p_b), False
+
+    return str(p_a), str(p_b), True
+
+
+
 # Endpoint para reiniciar el partido
 @router.post("/reiniciar")
 async def reiniciar_partido():
@@ -139,55 +170,70 @@ async def reiniciar_partido():
 
 @router.post("/actualizar")
 async def actualizar_marcador(data: MarcadorPadel):
+    # Paso 1: Bloqueo de seguridad si el partido ya terminó
     if data.partido_finalizado:
-        return data  # Si ya terminó, no hacemos nada
+        return data
 
-    nuevo_a, nuevo_b = gestionar_puntos(
-        data.puntos_a, data.puntos_b, data.quien_suma)
-
-    nuevos_juegos_a = list(data.juegos_a)
-    nuevos_juegos_b = list(data.juegos_b)
-    nuevo_set_actual = data.set_actual
-    nuevo_saque = data.saque
+    # Paso 2: Inicialización de variables de estado local
+    nuevo_set = data.set_actual
+    juegos_a = list(data.juegos_a)
+    juegos_b = list(data.juegos_b)
+    saque = data.saque
+    modo_tiebreak = data.es_tiebreak
     finalizado = False
 
-    # Lógica de Juego y Saque
-    if nuevo_a == "Juego" or nuevo_b == "Juego":
-        # 1. Sumar el juego al que corresponda
-        if nuevo_a == "Juego":
-            nuevos_juegos_a[nuevo_set_actual] += 1
-        if nuevo_b == "Juego":
-            nuevos_juegos_b[nuevo_set_actual] += 1
+    # Paso 3: Activación del modo Tie-break al llegar a 6-6
+    if juegos_a[nuevo_set] == 6 and juegos_b[nuevo_set] == 6:
+        modo_tiebreak = True
 
-        # 2. Reset de puntos
-        nuevo_a, nuevo_b = "0", "0"
+    # Paso 4: Cálculo de puntos según el modo de juego (Normal o Tie-break)
+    if modo_tiebreak:
+        nuevo_a, nuevo_b, sigue = gestionar_puntos_tiebreak(
+            data.puntos_a, data.puntos_b, data.quien_suma)
 
-        # 3. CAMBIO DE SAQUE
-        nuevo_saque = "B" if nuevo_saque == "A" else "A"
+        if not sigue:  # El Tie-break ha finalizado
+            if data.quien_suma == "A":
+                juegos_a[nuevo_set] += 1
+            else:
+                juegos_b[nuevo_set] += 1
+            nuevo_a, nuevo_b, modo_tiebreak = "0", "0", False
+            saque = "B" if saque == "A" else "A"
+        else:  # Rotación de saque cada 2 puntos en Tie-break
+            if "restar" not in data.quien_suma:
+                puntos_totales = int(nuevo_a) + int(nuevo_b)
+                if puntos_totales % 2 != 0:
+                    saque = "B" if saque == "A" else "A"
+    else:
+        nuevo_a, nuevo_b = gestionar_puntos(data.puntos_a, data.puntos_b, data.quien_suma)
 
-    # Verificar Set
-    ganador_set = verificar_set(
-        nuevos_juegos_a[nuevo_set_actual], nuevos_juegos_b[nuevo_set_actual])
+        # Paso 5: Gestión de victoria de juego normal y cambio de saque
+        if nuevo_a == "Juego" or nuevo_b == "Juego":
+            if nuevo_a == "Juego":
+                juegos_a[nuevo_set] += 1
+            else:
+                juegos_b[nuevo_set] += 1
+            nuevo_a, nuevo_b = "0", "0"
+            saque = "B" if saque == "A" else "A"
 
+    # Paso 6: Verificación de ganador de Set y actualización de la progresión
+    ganador_set = verificar_set(juegos_a[nuevo_set], juegos_b[nuevo_set])
     if ganador_set:
-        # Aquí una lógica simple: si alguien tiene 2 sets, se acabó.
-        # Contamos sets ganados recorriendo las listas
-        sets_ganados_a = sum(1 for i in range(3) if verificar_set(
-            nuevos_juegos_a[i], nuevos_juegos_b[i]) == "A")
-        sets_ganados_b = sum(1 for i in range(3) if verificar_set(
-            nuevos_juegos_a[i], nuevos_juegos_b[i]) == "B")
-
-        if sets_ganados_a == 2 or sets_ganados_b == 2 or nuevo_set_actual == 2:
+        # Cálculo de sets totales para determinar fin del partido
+        sets_a = sum(1 for i in range(3) if verificar_set(juegos_a[i], juegos_b[i]) == "A")
+        sets_b = sum(1 for i in range(3) if verificar_set(juegos_a[i], juegos_b[i]) == "B")
+        if sets_a == 2 or sets_b == 2 or nuevo_set == 2:
             finalizado = True
         else:
-            nuevo_set_actual += 1
+            nuevo_set += 1
 
+    # Paso 7: Retorno del nuevo estado sincronizado
     return {
         "puntos_a": nuevo_a,
         "puntos_b": nuevo_b,
-        "juegos_a": nuevos_juegos_a,
-        "juegos_b": nuevos_juegos_b,
-        "set_actual": nuevo_set_actual,
-        "saque": nuevo_saque,
-        "partido_finalizado": finalizado
+        "juegos_a": juegos_a,
+        "juegos_b": juegos_b,
+        "set_actual": nuevo_set,
+        "saque": saque,
+        "partido_finalizado": finalizado,
+        "es_tiebreak": modo_tiebreak
     }
